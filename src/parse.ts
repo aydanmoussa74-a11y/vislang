@@ -49,6 +49,11 @@ export function parseJsonBytes(
     };
   }
 
+  const objectError = rejectNonDocument(value);
+  if (objectError) {
+    return { errors: [objectError] };
+  }
+
   if (jsonDepth(value) > MAX_DEPTH) {
     return {
       errors: [
@@ -62,4 +67,15 @@ export function parseJsonBytes(
   }
 
   return { value, errors: [] };
+}
+
+export function rejectNonDocument(value: unknown): ValidationIssue | undefined {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    return {
+      code: "E_NOT_OBJECT",
+      path: "",
+      message: "Document MUST be a single JSON object.",
+    };
+  }
+  return undefined;
 }
