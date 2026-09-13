@@ -7,10 +7,10 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "test": "node --experimental-strip-types --test tests/validate.test.ts tests/dtcg.test.ts tests/hardening.test.ts tests/diff.test.ts spec/0.1/validate-schema.mjs",
+    "test": "node --experimental-strip-types --test tests/validate.test.ts tests/dtcg.test.ts tests/hardening.test.ts tests/diff.test.ts tests/diff-removal.test.ts spec/0.1/validate-schema.mjs",
     "test:schema": "node spec/0.1/validate-schema.mjs",
     "test:validate": "node --experimental-strip-types --test tests/validate.test.ts tests/dtcg.test.ts tests/hardening.test.ts",
-    "test:diff": "node --experimental-strip-types --test tests/diff.test.ts"
+    "test:diff": "node --experimental-strip-types --test tests/diff.test.ts tests/diff-removal.test.ts"
   },
   "engines": {
     "node": ">=22"
