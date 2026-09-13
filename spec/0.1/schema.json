@@ -1,0 +1,285 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vislang.dev/spec/0.1/schema.json",
+  "title": "Vislang 0.1 constitution",
+  "description": "Structural schema for a Vislang 0.1 constitution document. Does not encode semantic diff, SemVer compatibility, DTCG file existence, token resolution, or implementation inspection.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["vislang", "id", "name", "version", "status", "binds", "invariants"],
+  "properties": {
+    "vislang": { "const": "0.1" },
+    "id": { "$ref": "#/$defs/id" },
+    "name": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "version": { "$ref": "#/$defs/semver" },
+    "status": { "type": "string", "enum": ["draft", "stable", "deprecated"] },
+    "binds": { "$ref": "#/$defs/binds" },
+    "invariants": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/invariant" } },
+    "forbiddens": { "type": "array", "default": [], "items": { "$ref": "#/$defs/forbidden" } },
+    "surfaces": { "type": "array", "default": [], "items": { "$ref": "#/$defs/surface" } },
+    "metadata": { "type": "object" }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._-]{1,63}$" },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+    },
+    "roleName": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._-]{1,63}$" },
+    "tokenPointer": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]*(?:\\.[A-Za-z][A-Za-z0-9_-]*)*$" },
+    "dtcgPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\/)(?!.*(?:^|\\/)\\.\\.(?:\\/|$)).+$"
+    },
+    "selector": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "surface": { "$ref": "#/$defs/id" },
+        "component": { "$ref": "#/$defs/id" },
+        "part": { "$ref": "#/$defs/id" },
+        "state": { "type": "string", "enum": ["default", "hover", "active", "disabled", "focus", "loading"] }
+      }
+    },
+    "nonEmptySelector": {
+      "allOf": [
+        { "$ref": "#/$defs/selector" },
+        {
+          "anyOf": [
+            { "type": "object", "required": ["surface"] },
+            { "type": "object", "required": ["component"] },
+            { "type": "object", "required": ["part"] },
+            { "type": "object", "required": ["state"] }
+          ]
+        }
+      ]
+    },
+    "surface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "required"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "kind": { "type": "string", "enum": ["screen", "component", "region"] },
+        "required": { "type": "boolean" }
+      }
+    },
+    "predicate": {
+      "oneOf": [
+        { "$ref": "#/$defs/predRoleBound" },
+        { "$ref": "#/$defs/predSinglePrimary" },
+        { "$ref": "#/$defs/predForbiddenRoleUse" },
+        { "$ref": "#/$defs/predNavModel" },
+        { "$ref": "#/$defs/predSelectorMustExist" },
+        { "$ref": "#/$defs/predSelectorMustNotExist" },
+        { "$ref": "#/$defs/predMaxAccentRoles" }
+      ]
+    },
+    "predRoleBound": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "role"],
+      "properties": {
+        "kind": { "const": "role_bound" },
+        "role": { "$ref": "#/$defs/roleName" }
+      }
+    },
+    "predSinglePrimary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "role"],
+      "properties": {
+        "kind": { "const": "single_primary_action_role" },
+        "role": { "$ref": "#/$defs/roleName" }
+      }
+    },
+    "predForbiddenRoleUse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "role"],
+      "properties": {
+        "kind": { "const": "forbidden_role_use" },
+        "role": { "$ref": "#/$defs/roleName" }
+      }
+    },
+    "predNavModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "model"],
+      "properties": {
+        "kind": { "const": "nav_model" },
+        "model": { "type": "string", "enum": ["bottom_tabs", "side_rail", "top_tabs", "none"] },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    },
+    "predSelectorMustExist": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "selector"],
+      "properties": {
+        "kind": { "const": "selector_must_exist" },
+        "selector": { "$ref": "#/$defs/nonEmptySelector" }
+      }
+    },
+    "predSelectorMustNotExist": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "selector"],
+      "properties": {
+        "kind": { "const": "selector_must_not_exist" },
+        "selector": { "$ref": "#/$defs/nonEmptySelector" }
+      }
+    },
+    "predMaxAccentRoles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "n", "accent_roles"],
+      "properties": {
+        "kind": { "const": "max_accent_roles" },
+        "n": { "type": "integer", "minimum": 1 },
+        "accent_roles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/roleName" }
+        }
+      }
+    },
+    "lawFields": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "statement": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "severity": { "type": "string", "enum": ["error", "warning"] },
+        "applies_to": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/selector" }
+        },
+        "predicate": { "$ref": "#/$defs/predicate" },
+        "breaking_if_removed": { "type": "boolean" }
+      }
+    },
+    "invariant": {
+      "allOf": [
+        { "$ref": "#/$defs/lawFields" },
+        { "type": "object", "required": ["id", "statement", "severity", "applies_to", "predicate"] }
+      ]
+    },
+    "forbidden": {
+      "allOf": [
+        { "$ref": "#/$defs/lawFields" },
+        { "type": "object", "required": ["id", "statement", "severity", "predicate"] }
+      ]
+    },
+    "roleBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "required"],
+      "properties": {
+        "role": { "$ref": "#/$defs/roleName" },
+        "required": { "type": "boolean" },
+        "token": { "$ref": "#/$defs/tokenPointer" },
+        "fallback": { "type": "string", "minLength": 1, "maxLength": 256 }
+      }
+    },
+    "binds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tokens", "roles"],
+      "properties": {
+        "tokens": { "$ref": "#/$defs/tokens" },
+        "roles": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/roleBinding" } }
+      },
+      "allOf": [
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "tokens": {
+                "type": "object",
+                "properties": { "format": { "const": "dtcg-2025.10" } },
+                "required": ["format"]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "roles": {
+                "items": {
+                  "not": { "type": "object", "required": ["fallback"] },
+                  "if": {
+                    "type": "object",
+                    "properties": { "required": { "const": true } },
+                    "required": ["required"]
+                  },
+                  "then": { "type": "object", "required": ["token"] }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "tokens": {
+                "type": "object",
+                "properties": { "format": { "const": "none" } },
+                "required": ["format"]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "roles": {
+                "items": {
+                  "not": { "type": "object", "required": ["token"] },
+                  "if": {
+                    "type": "object",
+                    "properties": { "required": { "const": true } },
+                    "required": ["required"]
+                  },
+                  "then": { "type": "object", "required": ["fallback"] }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "tokens": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format"],
+      "properties": {
+        "format": { "type": "string", "enum": ["dtcg-2025.10", "none"] },
+        "path": { "$ref": "#/$defs/dtcgPath" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "type": "object",
+            "properties": { "format": { "const": "dtcg-2025.10" } },
+            "required": ["format"]
+          },
+          "then": { "type": "object", "required": ["path"] }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": { "format": { "const": "none" } },
+            "required": ["format"]
+          },
+          "then": { "not": { "type": "object", "required": ["path"] } }
+        }
+      ]
+    }
+  }
+}
