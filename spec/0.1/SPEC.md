@@ -190,7 +190,7 @@ If `binds.tokens.format` is `dtcg-2025.10`:
 
 - every role with `required` true MUST have `token`
 - `fallback` MUST NOT be present
-- `token`, when present, MUST match `^[A-Za-z][A-Za-z0-9_-]*(?:\.[A-Za-z][A-Za-z0-9_-]*)*$`
+- `token`, when present, MUST match `^[A-Za-z][A-Za-z0-9_-]*(?:\\.[A-Za-z][A-Za-z0-9_-]*)*$`
 
 If `binds.tokens.format` is `none`:
 
@@ -312,7 +312,9 @@ Semantics: the constitution names exactly one role as the primary action role.
 
 `role` MUST equal some `binds.roles[].role`.
 
-Semantics: the named role MUST NOT be used in the selectors listed in `applies_to`. If `applies_to` is document-wide, the role MUST NOT be used anywhere the constitution governs.
+Semantics: this predicate is a normative declaration that the bound role MUST NOT be used within the specified scope. If `applies_to` is document-wide, the declared scope is the whole constitution.
+
+In v0.1, `validate` MUST NOT inspect application source code, rendered UI, browser state, screenshots, or implementation usage to enforce this predicate. `validate` MUST only check the predicate's structural legality, that `role` is bound, and that `applies_to` selectors are legal. This predicate is not an implementation checker and is not an evidence checker.
 
 ### 8.4 nav_model
 
@@ -493,7 +495,9 @@ Document-level:
 - status draft to stable, stable to deprecated, draft to deprecated, deprecated to stable: additive
 - status stable to draft, deprecated to draft: breaking
 - binds.tokens.format changes: breaking
-- binds.tokens.path changes: additive
+- binds.tokens.path changes: unknown
+
+Changing `binds.tokens.path` MUST be classified as `unknown`. Vislang 0.1 only checks that the referenced DTCG file exists, is readable, and is valid JSON. It does not resolve token pointers or compare token values. Therefore a path change cannot be safely classified as additive.
 
 ### 10.6 Aggregate
 
