@@ -1,12 +1,22 @@
 {
   "name": "vislang",
   "private": true,
-  "description": "Vislang v0.1 specification and schema tests",
+  "description": "Vislang v0.1 specification and reference validation core",
   "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
-    "test:schema": "node spec/0.1/validate-schema.mjs"
+    "test": "node --experimental-strip-types --test tests/validate.test.ts spec/0.1/validate-schema.mjs",
+    "test:schema": "node spec/0.1/validate-schema.mjs",
+    "test:validate": "node --experimental-strip-types --test tests/validate.test.ts"
+  },
+  "engines": {
+    "node": ">=22"
   },
   "devDependencies": {
-    "ajv": "^8.17.1"
+    "@types/node": "^22.10.0",
+    "ajv": "^8.17.1",
+    "typescript": "^5.7.2"
   }
 }
