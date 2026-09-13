@@ -1,4 +1,5 @@
 export { validateConstitution } from "./validate.ts";
+export { validateDtcgBoundary } from "./dtcg.ts";
 export { parseJsonBytes, MAX_BYTES, MAX_DEPTH } from "./parse.ts";
 export type {
   Constitution,

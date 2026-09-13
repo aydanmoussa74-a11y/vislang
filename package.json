@@ -7,9 +7,9 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "test": "node --experimental-strip-types --test tests/validate.test.ts spec/0.1/validate-schema.mjs",
+    "test": "node --experimental-strip-types --test tests/validate.test.ts tests/dtcg.test.ts spec/0.1/validate-schema.mjs",
     "test:schema": "node spec/0.1/validate-schema.mjs",
-    "test:validate": "node --experimental-strip-types --test tests/validate.test.ts"
+    "test:validate": "node --experimental-strip-types --test tests/validate.test.ts tests/dtcg.test.ts"
   },
   "engines": {
     "node": ">=22"
