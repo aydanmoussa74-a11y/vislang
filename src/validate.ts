@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv from "ajv/dist/2020.js";
 import { validateDtcgBoundary } from "./dtcg.ts";
-import { parseJsonBytes } from "./parse.ts";
+import { parseJsonBytes, rejectNonDocument } from "./parse.ts";
 import type {
   Constitution,
   Law,
@@ -238,7 +238,10 @@ export function validateConstitution(
     data = parsed.value;
   } else {
     data = input;
-    if (jsonNeedsDepthCheck(data) && depthOf(data) > 32) {
+    const objectError = rejectNonDocument(data);
+    if (objectError) {
+      errors.push(objectError);
+    } else if (jsonNeedsDepthCheck(data) && depthOf(data) > 32) {
       errors.push({
         code: "E_DEPTH",
         path: "",
@@ -248,12 +251,24 @@ export function validateConstitution(
   }
 
   if (errors.length > 0) {
-    return { ok: false, file, spec: "0.1", errors, warnings };
+    return {
+      ok: false,
+      file,
+      spec: "0.1",
+      errors: sortIssues(errors),
+      warnings: sortIssues(warnings),
+    };
   }
 
   errors.push(...schemaIssues(data));
   if (errors.length > 0) {
-    return { ok: false, file, spec: "0.1", errors, warnings };
+    return {
+      ok: false,
+      file,
+      spec: "0.1",
+      errors: sortIssues(errors),
+      warnings: sortIssues(warnings),
+    };
   }
 
   const doc = data as Constitution;
@@ -266,9 +281,18 @@ export function validateConstitution(
     ok: errors.length === 0,
     file,
     spec: "0.1",
-    errors,
-    warnings,
+    errors: sortIssues(errors),
+    warnings: sortIssues(warnings),
   };
+}
+
+function sortIssues(issues: ValidationIssue[]): ValidationIssue[] {
+  return [...issues].sort((a, b) => {
+    if (a.path !== b.path) return a.path < b.path ? -1 : 1;
+    if (a.code !== b.code) return a.code < b.code ? -1 : 1;
+    if (a.message !== b.message) return a.message < b.message ? -1 : 1;
+    return 0;
+  });
 }
 
 function jsonNeedsDepthCheck(value: unknown): boolean {
