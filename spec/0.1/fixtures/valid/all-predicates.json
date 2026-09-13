@@ -1,0 +1,73 @@
+{
+  "vislang": "0.1",
+  "id": "workout-pwa",
+  "name": "Workout PWA",
+  "version": "0.2.0",
+  "status": "draft",
+  "binds": {
+    "tokens": { "format": "none" },
+    "roles": [
+      { "role": "action.primary", "required": true, "fallback": "#FFB000" },
+      { "role": "action.secondary", "required": false, "fallback": "#5F6368" },
+      { "role": "surface.base", "required": true, "fallback": "#0A0A0A" }
+    ]
+  },
+  "surfaces": [
+    { "id": "home", "kind": "screen", "required": true },
+    { "id": "library", "kind": "screen", "required": true }
+  ],
+  "invariants": [
+    {
+      "id": "INV-ROLE-01",
+      "statement": "Primary action role is bound.",
+      "severity": "error",
+      "applies_to": [{}],
+      "predicate": { "kind": "role_bound", "role": "action.primary" }
+    },
+    {
+      "id": "INV-PRIMARY-01",
+      "statement": "Exactly one primary action role.",
+      "severity": "error",
+      "applies_to": [{}],
+      "predicate": { "kind": "single_primary_action_role", "role": "action.primary" }
+    },
+    {
+      "id": "INV-NAV-01",
+      "statement": "Bottom navigation with five items.",
+      "severity": "error",
+      "applies_to": [{}],
+      "predicate": { "kind": "nav_model", "model": "bottom_tabs", "items": ["home", "train", "progress", "library", "media"] }
+    },
+    {
+      "id": "INV-ACCENT-01",
+      "statement": "At most one accent from the listed set.",
+      "severity": "error",
+      "applies_to": [{}],
+      "predicate": { "kind": "max_accent_roles", "n": 1, "accent_roles": ["action.primary", "action.secondary"] }
+    },
+    {
+      "id": "INV-HOME-EXISTS",
+      "statement": "Home screen exists.",
+      "severity": "error",
+      "applies_to": [{ "surface": "home" }],
+      "predicate": { "kind": "selector_must_exist", "selector": { "surface": "home" } }
+    },
+    {
+      "id": "INV-NO-DRAWER",
+      "statement": "Side drawer is not a named locus.",
+      "severity": "warning",
+      "applies_to": [{}],
+      "predicate": { "kind": "selector_must_not_exist", "selector": { "component": "SideDrawer" } }
+    }
+  ],
+  "forbiddens": [
+    {
+      "id": "FORB-SECONDARY-HOME",
+      "statement": "Secondary action role is not used as a primary CTA on home.",
+      "severity": "error",
+      "applies_to": [{ "surface": "home", "part": "cta" }],
+      "predicate": { "kind": "forbidden_role_use", "role": "action.secondary" }
+    }
+  ],
+  "metadata": { "note": "all seven predicates" }
+}

@@ -1,0 +1,25 @@
+{
+  "vislang": "0.1",
+  "id": "token-app",
+  "name": "Token App",
+  "version": "1.0.0-rc.1",
+  "status": "stable",
+  "binds": {
+    "tokens": { "format": "dtcg-2025.10", "path": "tokens/color.tokens.json" },
+    "roles": [
+      { "role": "action.primary", "required": true, "token": "color.action.primary" },
+      { "role": "action.secondary", "required": false, "token": "color.action.secondary" }
+    ]
+  },
+  "surfaces": [{ "id": "home", "kind": "screen", "required": true }],
+  "invariants": [
+    {
+      "id": "INV-PRIMARY-01",
+      "statement": "Primary action role is bound to a token.",
+      "severity": "error",
+      "applies_to": [{ "surface": "home", "state": "default" }],
+      "predicate": { "kind": "role_bound", "role": "action.primary" },
+      "breaking_if_removed": true
+    }
+  ]
+}

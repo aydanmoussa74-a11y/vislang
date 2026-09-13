@@ -1,0 +1,30 @@
+{
+  "vislang": "0.1",
+  "id": "optional-demo",
+  "name": "Optional sections",
+  "version": "0.1.0+build.7",
+  "status": "deprecated",
+  "binds": {
+    "tokens": { "format": "none" },
+    "roles": [
+      { "role": "action.primary", "required": true, "fallback": "#111111" },
+      { "role": "text.primary", "required": false }
+    ]
+  },
+  "surfaces": [
+    { "id": "composer", "kind": "region", "required": false },
+    { "id": "Button", "kind": "component", "required": true }
+  ],
+  "invariants": [
+    {
+      "id": "INV-PRIMARY-01",
+      "statement": "Primary action exists.",
+      "severity": "warning",
+      "applies_to": [{}],
+      "predicate": { "kind": "single_primary_action_role", "role": "action.primary" },
+      "breaking_if_removed": false
+    }
+  ],
+  "forbiddens": [],
+  "metadata": {}
+}
