@@ -1,0 +1,21 @@
+{
+  "vislang": "0.1",
+  "id": "example",
+  "name": "Example",
+  "version": "0.1.0",
+  "status": "draft",
+  "permissions": [],
+  "binds": {
+    "tokens": { "format": "none" },
+    "roles": [{ "role": "action.primary", "required": true, "fallback": "#000000" }]
+  },
+  "invariants": [
+    {
+      "id": "INV-PRIMARY-01",
+      "statement": "Unknown root key.",
+      "severity": "error",
+      "applies_to": [{}],
+      "predicate": { "kind": "single_primary_action_role", "role": "action.primary" }
+    }
+  ]
+}

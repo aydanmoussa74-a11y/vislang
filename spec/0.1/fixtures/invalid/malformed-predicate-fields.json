@@ -1,0 +1,20 @@
+{
+  "vislang": "0.1",
+  "id": "example",
+  "name": "Example",
+  "version": "0.1.0",
+  "status": "draft",
+  "binds": {
+    "tokens": { "format": "none" },
+    "roles": [{ "role": "action.primary", "required": true, "fallback": "#000000" }]
+  },
+  "invariants": [
+    {
+      "id": "INV-ACCENT-01",
+      "statement": "n must be an integer >= 1 and accent_roles required.",
+      "severity": "error",
+      "applies_to": [{}],
+      "predicate": { "kind": "max_accent_roles", "n": 0 }
+    }
+  ]
+}

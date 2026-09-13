@@ -1,0 +1,22 @@
+{
+  "vislang": "0.1",
+  "id": "example",
+  "name": "Example",
+  "version": "0.1.0",
+  "status": "draft",
+  "binds": {
+    "tokens": { "format": "dtcg-2025.10", "path": "../secrets/tokens.json" },
+    "roles": [
+      { "role": "action.primary", "required": true, "token": "color.action.primary" }
+    ]
+  },
+  "invariants": [
+    {
+      "id": "INV-PRIMARY-01",
+      "statement": "Token path must not contain a .. segment.",
+      "severity": "error",
+      "applies_to": [{}],
+      "predicate": { "kind": "role_bound", "role": "action.primary" }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "vislang": "0.1",
+  "id": "1bad",
+  "name": "Example",
+  "version": "0.1.0",
+  "status": "draft",
+  "binds": {
+    "tokens": { "format": "none" },
+    "roles": [{ "role": "action.primary", "required": true, "fallback": "#000000" }]
+  },
+  "invariants": [
+    {
+      "id": "INV-PRIMARY-01",
+      "statement": "Bad document id.",
+      "severity": "error",
+      "applies_to": [{}],
+      "predicate": { "kind": "single_primary_action_role", "role": "action.primary" }
+    }
+  ]
+}

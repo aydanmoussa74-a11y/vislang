@@ -1,0 +1,22 @@
+{
+  "vislang": "0.1",
+  "id": "example",
+  "name": "Example",
+  "version": "0.1.0",
+  "status": "draft",
+  "binds": {
+    "tokens": { "format": "none" },
+    "roles": [
+      { "role": "action.primary", "required": true, "token": "color.action.primary" }
+    ]
+  },
+  "invariants": [
+    {
+      "id": "INV-PRIMARY-01",
+      "statement": "Required role under format none must not use token.",
+      "severity": "error",
+      "applies_to": [{}],
+      "predicate": { "kind": "single_primary_action_role", "role": "action.primary" }
+    }
+  ]
+}

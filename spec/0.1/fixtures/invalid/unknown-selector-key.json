@@ -1,0 +1,20 @@
+{
+  "vislang": "0.1",
+  "id": "example",
+  "name": "Example",
+  "version": "0.1.0",
+  "status": "draft",
+  "binds": {
+    "tokens": { "format": "none" },
+    "roles": [{ "role": "action.primary", "required": true, "fallback": "#000000" }]
+  },
+  "invariants": [
+    {
+      "id": "INV-PRIMARY-01",
+      "statement": "Selector cannot have css keys.",
+      "severity": "error",
+      "applies_to": [{ "css": ".home" }],
+      "predicate": { "kind": "single_primary_action_role", "role": "action.primary" }
+    }
+  ]
+}

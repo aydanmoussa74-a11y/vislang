@@ -1,0 +1,20 @@
+{
+  "vislang": "0.1",
+  "id": "example",
+  "name": "Example",
+  "version": "0.1.0",
+  "status": "draft",
+  "binds": {
+    "tokens": { "format": "none" },
+    "roles": []
+  },
+  "invariants": [
+    {
+      "id": "INV-PRIMARY-01",
+      "statement": "roles must have length >= 1.",
+      "severity": "error",
+      "applies_to": [{}],
+      "predicate": { "kind": "role_bound", "role": "action.primary" }
+    }
+  ]
+}
