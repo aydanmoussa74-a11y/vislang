@@ -103,17 +103,17 @@ function predicateClass(oldPred: NormalizedLaw["predicate"], newPred: Normalized
   return "breaking";
 }
 
-function classifyRoleRemove(role: { role: string; required: boolean }, remaining: Set<string>): DiffClass {
+function classifyRoleRemove(role: { role: string; required: boolean }, referenced: Set<string>): DiffClass {
   let klass: DiffClass = "additive";
   if (role.required) klass = worse(klass, "breaking");
-  if (remaining.has(role.role)) klass = worse(klass, "breaking");
+  if (referenced.has(role.role)) klass = worse(klass, "breaking");
   return klass;
 }
 
-function classifySurfaceRemove(required: boolean, id: string, remaining: Set<string>): DiffClass {
+function classifySurfaceRemove(required: boolean, id: string, referenced: Set<string>): DiffClass {
   let klass: DiffClass = "additive";
   if (required) klass = worse(klass, "breaking");
-  if (remaining.has(id)) klass = worse(klass, "breaking");
+  if (referenced.has(id)) klass = worse(klass, "breaking");
   return klass;
 }
 
@@ -126,13 +126,13 @@ function classifyStatus(from: string, to: string): DiffClass | undefined {
 
 function diffRoles(oldDoc: NormalizedDoc, newDoc: NormalizedDoc): DiffChange[] {
   const out: DiffChange[] = [];
-  const remaining = referencedRoles(newDoc);
+  const referenced = referencedRoles(oldDoc);
   const ids = new Set([...oldDoc.roles.keys(), ...newDoc.roles.keys()]);
   for (const id of ids) {
     const before = oldDoc.roles.get(id);
     const after = newDoc.roles.get(id);
     if (before && !after) {
-      out.push(change("roles", id, "remove", classifyRoleRemove(before, remaining), `Role "${id}" was removed.`));
+      out.push(change("roles", id, "remove", classifyRoleRemove(before, referenced), `Role "${id}" was removed.`));
       continue;
     }
     if (!before && after) {
@@ -208,13 +208,13 @@ function diffLaws(
 
 function diffSurfaces(oldDoc: NormalizedDoc, newDoc: NormalizedDoc): DiffChange[] {
   const out: DiffChange[] = [];
-  const remaining = referencedSurfaces(newDoc);
+  const referenced = referencedSurfaces(oldDoc);
   const ids = new Set([...oldDoc.surfaces.keys(), ...newDoc.surfaces.keys()]);
   for (const id of ids) {
     const before = oldDoc.surfaces.get(id);
     const after = newDoc.surfaces.get(id);
     if (before && !after) {
-      out.push(change("surfaces", id, "remove", classifySurfaceRemove(before.required, id, remaining), `Surface "${id}" was removed.`));
+      out.push(change("surfaces", id, "remove", classifySurfaceRemove(before.required, id, referenced), `Surface "${id}" was removed.`));
       continue;
     }
     if (!before && after) {
