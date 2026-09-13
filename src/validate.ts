@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv from "ajv/dist/2020.js";
+import { validateDtcgBoundary } from "./dtcg.ts";
 import { parseJsonBytes } from "./parse.ts";
 import type {
   Constitution,
@@ -255,9 +256,11 @@ export function validateConstitution(
     return { ok: false, file, spec: "0.1", errors, warnings };
   }
 
-  const xref = crossReferenceIssues(data as Constitution);
+  const doc = data as Constitution;
+  const xref = crossReferenceIssues(doc);
   errors.push(...xref.errors);
   warnings.push(...xref.warnings);
+  errors.push(...validateDtcgBoundary(doc, file));
 
   return {
     ok: errors.length === 0,
