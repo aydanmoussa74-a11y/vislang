@@ -159,7 +159,6 @@ function crossReferenceIssues(doc: Constitution): {
 
   for (const { law, path } of collectLaws(doc)) {
     const kind = law.predicate.kind;
-
     if (kind === "single_primary_action_role") {
       primaryCount += 1;
       if (primaryCount > 1) {
@@ -170,7 +169,6 @@ function crossReferenceIssues(doc: Constitution): {
         });
       }
     }
-
     if (kind === "max_accent_roles") {
       accentCount += 1;
       if (accentCount > 1) {
@@ -190,7 +188,6 @@ function crossReferenceIssues(doc: Constitution): {
         });
       }
     }
-
     for (const role of predicateRoles(law.predicate)) {
       if (!boundRoles.has(role)) {
         errors.push({
@@ -200,7 +197,6 @@ function crossReferenceIssues(doc: Constitution): {
         });
       }
     }
-
     walkSelectors(law, (selector, selectorPath) => {
       if (selector.surface && !surfaceIds.has(selector.surface)) {
         errors.push({
@@ -210,7 +206,6 @@ function crossReferenceIssues(doc: Constitution): {
         });
       }
     });
-
     if (law.severity === "error" && law.breaking_if_removed === false) {
       warnings.push({
         code: "W002",
@@ -232,7 +227,7 @@ export function validateConstitution(
   const warnings: ValidationIssue[] = [];
 
   let data: unknown;
-  if (typeof input === "string") {
+  if (typeof input === "string" || input instanceof Uint8Array) {
     const parsed = parseJsonBytes(input);
     errors.push(...parsed.errors);
     data = parsed.value;
