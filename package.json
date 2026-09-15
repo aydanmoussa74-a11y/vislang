@@ -11,12 +11,12 @@
   },
   "scripts": {
     "vislang": "node --experimental-strip-types src/cli.ts",
-    "test": "node --experimental-strip-types --test tests/validate.test.ts tests/dtcg.test.ts tests/hardening.test.ts tests/diff.test.ts tests/diff-removal.test.ts tests/semver.test.ts tests/cli.test.ts spec/0.1/validate-schema.mjs",
+    "test": "node --experimental-strip-types --test tests/validate.test.ts tests/dtcg.test.ts tests/hardening.test.ts tests/diff.test.ts tests/diff-removal.test.ts tests/semver.test.ts tests/cli.test.ts tests/cli-init.test.ts spec/0.1/validate-schema.mjs",
     "test:schema": "node spec/0.1/validate-schema.mjs",
     "test:validate": "node --experimental-strip-types --test tests/validate.test.ts tests/dtcg.test.ts tests/hardening.test.ts",
     "test:diff": "node --experimental-strip-types --test tests/diff.test.ts tests/diff-removal.test.ts",
     "test:semver": "node --experimental-strip-types --test tests/semver.test.ts",
-    "test:cli": "node --experimental-strip-types --test tests/cli.test.ts"
+    "test:cli": "node --experimental-strip-types --test tests/cli.test.ts tests/cli-init.test.ts"
   },
   "engines": {
     "node": ">=22"
