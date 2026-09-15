@@ -6,6 +6,7 @@ import { diffConstitutions } from "./diff.ts";
 import type { DiffChange, DiffClass, DiffResult } from "./diff-types.ts";
 import { checkSemverCompatibility } from "./semver.ts";
 import type { ValidationIssue, ValidationResult } from "./types.ts";
+import { decodeUtf8Strict } from "./parse.ts";
 import { validateConstitution } from "./validate.ts";
 
 export const EXIT = {
@@ -129,21 +130,23 @@ function paint(enabled: boolean, code: string, text: string): string {
   return `\u001b[${code}m${text}\u001b[0m`;
 }
 
-function readOperand(operand: string): { ok: true; text: string; file: string } | { ok: false; code: number; message: string } {
-  if (operand === "-") {
-    return { ok: true, text: readFileSync(0, "utf8"), file: "-" };
-  }
+function readOperand(operand: string): { ok: true; text: string; file: string } | { ok: false; code: number; message: string; issueCode: string } {
   try {
-    return { ok: true, text: readFileSync(operand, "utf8"), file: operand };
+    const bytes = operand === "-" ? readFileSync(0) : readFileSync(operand);
+    const utf8 = decodeUtf8Strict(bytes);
+    if (!utf8.ok) {
+      return { ok: false, code: EXIT.io, message: utf8.issue.message, issueCode: "E_UTF8" };
+    }
+    return { ok: true, text: utf8.text, file: operand };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    return { ok: false, code: EXIT.io, message: `Cannot read ${operand}: ${message}` };
+    return { ok: false, code: EXIT.io, message: `Cannot read ${operand}: ${message}`, issueCode: "E_IO" };
   }
 }
 
 function validateExit(result: ValidationResult): number {
   if (result.ok) return EXIT.ok;
-  const ioCodes = new Set(["E_PARSE", "E_NOT_OBJECT", "E_FILE_TOO_LARGE", "E_DEPTH", "E_DTCG_STDIN"]);
+  const ioCodes = new Set(["E_PARSE", "E_NOT_OBJECT", "E_FILE_TOO_LARGE", "E_DEPTH", "E_DTCG_STDIN", "E_UTF8"]);
   if (result.errors.some((issue) => ioCodes.has(issue.code))) return EXIT.io;
   return EXIT.invalid;
 }
@@ -234,7 +237,11 @@ export function runCli(argv: string[], options: { stdoutTty?: boolean } = {}): n
     }
     const loaded = readOperand(args.operands[0]);
     if (!loaded.ok) {
-      writeErr(loaded.message);
+      if (args.json) {
+        printJson({ ok: false, file: args.operands[0], spec: "0.1", errors: [{ code: loaded.issueCode, path: "", message: loaded.message }], warnings: [] });
+      } else {
+        writeErr(loaded.message);
+      }
       return loaded.code;
     }
     const result = validateConstitution(loaded.text, { file: loaded.file });
@@ -268,9 +275,23 @@ export function runCli(argv: string[], options: { stdoutTty?: boolean } = {}): n
       return EXIT.usage;
     }
     const oldLoaded = readOperand(oldPath);
-    if (!oldLoaded.ok) { writeErr(oldLoaded.message); return oldLoaded.code; }
+    if (!oldLoaded.ok) {
+      if (args.json) {
+        printJson({ ok: false, reason: "invalid_old", errors: [{ code: oldLoaded.issueCode, path: "", message: oldLoaded.message }], breaking: [], additive: [], nonbreaking: [], unknown: [], semver_ok: true });
+      } else {
+        writeErr(oldLoaded.message);
+      }
+      return oldLoaded.code;
+    }
     const newLoaded = readOperand(newPath);
-    if (!newLoaded.ok) { writeErr(newLoaded.message); return newLoaded.code; }
+    if (!newLoaded.ok) {
+      if (args.json) {
+        printJson({ ok: false, reason: "invalid_new", errors: [{ code: newLoaded.issueCode, path: "", message: newLoaded.message }], breaking: [], additive: [], nonbreaking: [], unknown: [], semver_ok: true });
+      } else {
+        writeErr(newLoaded.message);
+      }
+      return newLoaded.code;
+    }
     const diff = diffConstitutions(oldLoaded.text, newLoaded.text, { oldFile: oldLoaded.file, newFile: newLoaded.file });
     if (!diff.ok) {
       const reason = diff.reason === "invalid_old" ? "Old constitution is invalid." : diff.reason === "invalid_new" ? "New constitution is invalid." : "Constitutions are incomparable because their ids differ.";
