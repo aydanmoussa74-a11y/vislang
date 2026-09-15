@@ -1,7 +1,7 @@
 import { readFileSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
 import type { Constitution, ValidationIssue } from "./types.ts";
-import { MAX_BYTES } from "./parse.ts";
+import { MAX_BYTES, decodeUtf8Strict } from "./parse.ts";
 
 const PATH_FIELD = "/binds/tokens/path";
 
@@ -191,8 +191,19 @@ export function validateDtcgBoundary(
     ];
   }
 
+  const utf8 = decodeUtf8Strict(bytes);
+  if (!utf8.ok) {
+    return [
+      {
+        code: "E_DTCG_JSON",
+        path: PATH_FIELD,
+        message: "Referenced DTCG file is not valid UTF-8 JSON.",
+      },
+    ];
+  }
+
   try {
-    JSON.parse(bytes.toString("utf8"));
+    JSON.parse(utf8.text);
   } catch {
     return [
       {
