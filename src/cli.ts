@@ -324,9 +324,17 @@ export function runCli(argv: string[], options: { stdoutTty?: boolean } = {}): n
     writeErr(`${file} already exists. Use --force to overwrite.`);
     return EXIT.io;
   }
+  const generated = defaultConstitution(id, name);
+  const generatedCheck = validateConstitution(generated, { file });
+  if (!generatedCheck.ok) {
+    writeErr(`Generated constitution failed validation for ${file}.`);
+    const block = formatIssues("errors", generatedCheck.errors, color, "31");
+    if (block) writeErr(block);
+    return validateExit(generatedCheck);
+  }
   try {
     mkdirSync(dir, { recursive: true });
-    writeFileSync(file, defaultConstitution(id, name), "utf8");
+    writeFileSync(file, generated, "utf8");
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     writeErr(`Cannot write ${file}: ${message}`);
