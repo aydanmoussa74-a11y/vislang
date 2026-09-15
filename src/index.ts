@@ -7,7 +7,7 @@ export {
   parseSemVer,
   semverPolicyFor,
 } from "./semver.ts";
-export { parseJsonBytes, MAX_BYTES, MAX_DEPTH } from "./parse.ts";
+export { parseJsonBytes, decodeUtf8Strict, MAX_BYTES, MAX_DEPTH } from "./parse.ts";
 export type {
   Constitution,
   ValidateOptions,
