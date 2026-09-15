@@ -17,7 +17,65 @@
 
 ## Demo
 
-<!-- Demo GIF will be added in the next release-polish slice. -->
+```
+define the constitution
+        ↓
+     validate
+        ↓
+   change a law
+        ↓
+        diff
+        ↓
+semantic class
+```
+
+From a clone of this repository (Node.js 22+):
+
+```bash
+npm install
+npm run vislang -- init
+npm run vislang -- validate vislang.json
+```
+
+Copy `vislang.json` to `old.json` and `new.json`. Add one optional role to `new.json`:
+
+```json
+{
+  "role": "action.secondary",
+  "required": false,
+  "fallback": "#5F6368"
+}
+```
+
+```bash
+npm run vislang -- diff old.json new.json
+```
+
+Actual output from the current CLI:
+
+```
+aggregate additive
+additive roles add action.secondary Role "action.secondary" was added.
+```
+
+A textual JSON diff would only show that an object was inserted. Vislang classifies that insertion as **additive**: the constitution gained an optional role.
+
+A law change is different. Replacing the `single_primary_action_role` predicate with `role_bound` produces:
+
+```
+aggregate breaking
+breaking invariants modify INV-PRIMARY-01 predicate invariant "INV-PRIMARY-01" changed.
+```
+
+Exit code `3`. Same file format; different meaning.
+
+Re-run the first walkthrough without touching your working tree:
+
+```bash
+node examples/demo/run-demo.mjs
+```
+
+See [examples/demo/README.md](examples/demo/README.md).
 
 ## What is Vislang?
 
